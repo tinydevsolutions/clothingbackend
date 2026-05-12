@@ -19,9 +19,14 @@ if (fs.existsSync(envPath)) {
 }
 
 // Configure Cloudinary using parsed config or existing process.env
+const cloudName = envConfig.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'digevwnel';
+const apiKey = envConfig.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY;
+
+console.log(`[Cloudinary] Initializing with Cloud Name: ${cloudName}, API Key: ${apiKey ? '***' + apiKey.slice(-4) : 'MISSING'}`);
+
 cloudinary.config({
-  cloud_name: envConfig.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'digevwnel',
-  api_key: envConfig.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY,
+  cloud_name: cloudName,
+  api_key: apiKey,
   api_secret: envConfig.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET,
 });
 
