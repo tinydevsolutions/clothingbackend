@@ -10,14 +10,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const envFile = fs.readFileSync(path.join(__dirname, '../.env'));
-const envConfig = dotenv.parse(envFile);
+const envPath = path.join(__dirname, '../.env');
 
-// Configure Cloudinary synchronously using the parsed text
+let envConfig = {};
+if (fs.existsSync(envPath)) {
+  const envFile = fs.readFileSync(envPath);
+  envConfig = dotenv.parse(envFile);
+}
+
+// Configure Cloudinary using parsed config or existing process.env
 cloudinary.config({
-  cloud_name: 'digevwnel',
-  api_key: envConfig.CLOUDINARY_API_KEY,
-  api_secret: envConfig.CLOUDINARY_API_SECRET,
+  cloud_name: envConfig.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'digevwnel',
+  api_key: envConfig.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY,
+  api_secret: envConfig.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET,
 });
 
 const storage = new CloudinaryStorage({
