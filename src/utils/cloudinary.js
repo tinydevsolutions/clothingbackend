@@ -18,17 +18,24 @@ if (fs.existsSync(envPath)) {
   envConfig = dotenv.parse(envFile);
 }
 
-// Configure Cloudinary using parsed config or existing process.env
-const cloudName = envConfig.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || 'digevwnel';
-const apiKey = envConfig.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY;
+// Configure Cloudinary using CLOUDINARY_URL if available, otherwise fallback to individual keys
+const cloudinaryUrl = envConfig.CLOUDINARY_URL || process.env.CLOUDINARY_URL;
+const cloudName = envConfig.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || (cloudinaryUrl ? cloudinaryUrl.split('@').pop() : 'digevwnel');
+const apiKey = envConfig.CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY || (cloudinaryUrl ? cloudinaryUrl.split('://')[1].split(':')[0] : null);
 
 console.log(`[Cloudinary] Initializing with Cloud Name: ${cloudName}, API Key: ${apiKey ? '***' + apiKey.slice(-4) : 'MISSING'}`);
 
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: envConfig.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET,
-});
+if (cloudinaryUrl) {
+  cloudinary.config({
+    secure: true
+  });
+} else {
+  cloudinary.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: envConfig.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET,
+  });
+}
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
